@@ -7,7 +7,7 @@ const {
   error_request,
   error_not_found,
   error_server
-} = require('../utils/constants')
+} = require('../utils/constants');
 
 
 // запрос всех пользователей

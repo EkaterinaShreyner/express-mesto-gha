@@ -3,13 +3,14 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 
 const usersRouter = require('./routes/users');
+const cardsRouter = require('./routes/cards');
 
 const { error_not_found } = require('./utils/constants');
 
 const { PORT = 3000 } = process.env;
 const app = express();
 
-mongoose.connect('mongodb://localhost:27017/mestodb', {
+mongoose.connect('mongodb://127.0.0.1:27017/mestodb', {
   useNewUrlParser: true,
   // useCreateIndex: true,
   // useFindAndModify: false,
@@ -30,6 +31,7 @@ app.use(bodyParser.urlencoded({ extended: true })); // для приёма ве�
 
 // запуск роутера для запросов по строке /users
 app.use('/users', usersRouter);
+app.use('/cards', cardsRouter);
 
 app.use('/*', (_req, res) => {
   res.status(error_not_found).send({ message: 'Страница не найдена'});
