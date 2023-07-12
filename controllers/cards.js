@@ -1,35 +1,72 @@
 const Card = require('../models/card');
 
 const {
-  success_request,
-  success_create_request,
-  error_request,
-  error_not_found,
-  error_server
+  SUCCESS__REQUEST,
+  SUCCESS_CREATE__REQUEST,
+  ERROR_REQUEST,
+  ERROR_NOT_FOUND,
+  ERROR_SERVER
 } = require('../utils/constants');
 
 // запрос всех карточек
 function getCards(_req, res) {
   Card.find({})
-    .then((cards) => res.status(success_request).send(cards))
-    .catch(() => res.status(error_server).send({ message: 'Произошла ошибка на сервере' }))
+    .then((cards) => res.status(SUCCESS__REQUEST).send(cards))
+    .catch(() => res.status(ERROR_SERVER).send({ message: 'Произошла ошибка на сервере' }))
 }
 
-function createCard(req, res) {
+// создание новой карточки
+function createNewCard(req, res) {
   const { name, link, owner } = req.body;
   const userId = req.user._id;
 
   Card.create({ name, link, owner: userId })
-    .then((card) => res.status(success_create_request).send(card))
+    .then((card) => res.status(SUCCESS_CREATE__REQUEST).send(card))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return res.status(error_request).send({ message: ' Переданы некорректные данные карточки' })
+        return res.status(ERROR_REQUEST).send({ message: 'Переданы некорректные данные карточки', err })
       }
-        return res.status(error_server).send({ message: 'Произошла ошибка на сервере' })
+        return res.status(ERROR_SERVER).send({ message: 'Произошла ошибка на сервере' })
     })
+}
+
+// удаление карточки
+function deleteCardById(req, res) {
+  const { cardId } = req.params;
+  Card.findByIdAndRemove(cardId)
+    .then((card) => {
+      console.log(cardId)
+      res.status(SUCCESS__REQUEST).send(card)
+    })
+    .catch((err) => {
+      console.log(err.name)
+      if (err.name === 'CastError') {
+        return res.status(ERROR_NOT_FOUND).send({ message: 'Карточка с таким id не найдена' })
+      }
+        return res.status(ERROR_SERVER).send({ message: 'Произошла ошибка на сервере' })
+    })
+}
+
+// установка лайка карточки
+function putLikeCard(req, res) {
+  const { cardId } = req.params;
+  Card.findByIdAndUpdate(
+    cardId,
+    { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
+    { new: true }
+  )
+  .then((item) => {
+    console.log(item)
+  })
+  .catch((err) => {
+    console.log(err.name)
+    return res.status(ERROR_SERVER).send({ message: 'Произошла ошибка на сервере' })
+  })
 }
 
 module.exports = {
   getCards,
-  createCard,
+  createNewCard,
+  deleteCardById,
+  putLikeCard,
 }
