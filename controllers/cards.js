@@ -35,13 +35,16 @@ function deleteCardById(req, res) {
   const { cardId } = req.params;
   Card.findByIdAndRemove(cardId)
     .then((card) => {
-      console.log(cardId)
+      if (!card) {
+        console.log(card)
+        return res.status(ERROR_NOT_FOUND).send({ message: 'Карточка с таким id не найдена' })
+      }
       res.status(SUCCESS__REQUEST).send(card)
     })
     .catch((err) => {
       console.log(err.name)
       if (err.name === 'CastError') {
-        return res.status(ERROR_NOT_FOUND).send({ message: 'Карточка с таким id не найдена' })
+        return res.status(ERROR_REQUEST).send({ message: 'Переданы некорректные данные id карточки' })
       }
         return res.status(ERROR_SERVER).send({ message: 'Произошла ошибка на сервере' })
     })
