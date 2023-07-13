@@ -24,19 +24,15 @@ function getUserById(req, res) {
     .then((user) => {
       console.log(userId)
       console.log(user)
-      return res.status(SUCCESS__REQUEST).send(user)
-      // if (!user) {
-      //   console.log('не найден')
-      //   return res.status(404).send({ message: 'Пользователь не найден' })
-      // } else {
-      //   console.log('Найден')
-      //   return res.status(200).send(user);
-      // }
+      if (!user) {
+        return res.status(ERROR_NOT_FOUND).send({ message: 'Пользователь с такими id не найден' })
+      }
+        res.status(SUCCESS__REQUEST).send(user);
     })
     .catch((err) => {
       console.log(err.name);
       if (err.name === 'CastError') {
-        return res.status(ERROR_NOT_FOUND).send({ message: 'Пользователь с таким id не найден'});
+        return res.status(ERROR_REQUEST).send({ message: 'Переданы некорректные данные id пользователя'});
       }
         return res.status(ERROR_SERVER).send({ message: 'Произошла ошибка на сервере' });
     });

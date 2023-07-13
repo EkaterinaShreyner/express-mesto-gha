@@ -39,7 +39,7 @@ function deleteCardById(req, res) {
         console.log(card)
         return res.status(ERROR_NOT_FOUND).send({ message: 'Карточка с таким id не найдена' })
       }
-      res.status(SUCCESS__REQUEST).send(card)
+        res.status(SUCCESS__REQUEST).send(card)
     })
     .catch((err) => {
       console.log(err.name)
