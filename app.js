@@ -5,7 +5,7 @@ const bodyParser = require('body-parser');
 const usersRouter = require('./routes/users');
 const cardsRouter = require('./routes/cards');
 
-const { error_not_found } = require('./utils/constants');
+const { ERROR_NOT_FOUND } = require('./utils/constants');
 
 const { PORT = 3000 } = process.env;
 const app = express();
@@ -35,7 +35,7 @@ app.use('/users', usersRouter);
 app.use('/cards', cardsRouter);
 
 app.use('/*', (_req, res) => {
-  res.status(error_not_found).send({ message: 'Страница не найдена'});
+  res.status(ERROR_NOT_FOUND).send({ message: 'Страница не найдена'});
 })
 
 app.listen(PORT, () => {
