@@ -24,8 +24,6 @@ app.use((req, _res, next) => {
 });
 
 // объединение пакетов данных
-app.use(bodyParser.json()); // для собирания ответа от сервера в JSON-формата
-// либо
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true })); // для приёма веб-страниц внутри POST-запроса
 

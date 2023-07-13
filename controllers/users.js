@@ -4,7 +4,6 @@
 const User = require('../models/users');
 
 const {
-  SUCCESS__REQUEST,
   SUCCESS_CREATE__REQUEST,
   ERROR_REQUEST,
   ERROR_NOT_FOUND,
@@ -14,7 +13,7 @@ const {
 // запрос всех пользователей
 function getUsers(_req, res) {
   User.find({})
-    .then((user) => res.status(SUCCESS__REQUEST).send(user))
+    .then((user) => res.send(user))
     .catch(() => res.status(ERROR_SERVER).send({ message: 'Произошла ошибка на сервере' }));
 }
 
@@ -22,14 +21,13 @@ function getUsers(_req, res) {
 function getUserById(req, res) {
   const { userId } = req.params;
   User.findById(userId)
-    // eslint-disable-next-line consistent-return
     .then((user) => {
       console.log(userId);
       console.log(user);
       if (!user) {
         return res.status(ERROR_NOT_FOUND).send({ message: 'Пользователь с такими id не найден' });
       }
-      res.status(SUCCESS__REQUEST).send(user);
+      res.send(user);
     })
     .catch((err) => {
       console.log(err.name);
@@ -70,7 +68,7 @@ function patchUser(req, res) {
       // upsert: true // если пользователь не найден, он будет создан
     },
   )
-    .then((user) => res.status(SUCCESS__REQUEST).send(user))
+    .then((user) => res.send(user))
     // .then((user) => console.log({ name }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -96,7 +94,7 @@ function patchUserAvatar(req, res) {
       // upsert: false // если пользователь не найден, он не будет создан
     },
   )
-    .then((user) => res.status(SUCCESS__REQUEST).send(user))
+    .then((user) => res.send(user))
     .catch((err) => {
       console.log(err);
       if (err.name === 'ValidationError') {

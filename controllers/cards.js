@@ -3,7 +3,6 @@
 const Card = require('../models/card');
 
 const {
-  SUCCESS__REQUEST,
   SUCCESS_CREATE__REQUEST,
   ERROR_REQUEST,
   ERROR_NOT_FOUND,
@@ -13,7 +12,7 @@ const {
 // запрос всех карточек
 function getCards(_req, res) {
   Card.find({})
-    .then((cards) => res.status(SUCCESS__REQUEST).send(cards))
+    .then((cards) => res.send(cards))
     .catch(() => res.status(ERROR_SERVER).send({ message: 'Произошла ошибка на сервере' }));
 }
 
@@ -41,7 +40,7 @@ function deleteCardById(req, res) {
         console.log(card);
         return res.status(ERROR_NOT_FOUND).send({ message: 'Карточка с таким id не найдена' });
       }
-      res.status(SUCCESS__REQUEST).send(card);
+      res.send(card);
     })
     .catch((err) => {
       console.log(err.name);
@@ -65,7 +64,7 @@ function LikeCard(req, res) {
         console.log(card);
         return res.status(ERROR_NOT_FOUND).send({ message: 'Карточка с таким id не найдена' });
       }
-      res.status(SUCCESS__REQUEST).send(card);
+      res.send(card);
     })
     .catch((err) => {
       console.log(err.name);
@@ -89,7 +88,7 @@ function deleteLikeCard(req, res) {
         console.log(card);
         return res.status(ERROR_NOT_FOUND).send({ message: 'Карточка с таким id не найдена' });
       }
-      res.status(SUCCESS__REQUEST).send(card);
+      res.send(card);
     })
     .catch((err) => {
       console.log(err.name);
