@@ -51,7 +51,7 @@ function deleteCardById(req, res) {
 }
 
 // установка лайка карточки
-function putLikeCard(req, res) {
+function LikeCard(req, res) {
   const { cardId } = req.params;
   Card.findByIdAndUpdate(
     cardId,
@@ -67,7 +67,10 @@ function putLikeCard(req, res) {
     })
     .catch((err) => {
       console.log(err.name)
-      return res.status(ERROR_SERVER).send({ message: 'Произошла ошибка на сервере' })
+      if (err.name === 'CastError') {
+        return res.status(ERROR_REQUEST).send({ message: 'Переданы некорректные данные карточки' })
+      }
+        return res.status(ERROR_SERVER).send({ message: 'Произошла ошибка на сервере' })
     })
 }
 
@@ -91,7 +94,7 @@ function deleteLikeCard(req, res) {
       if (err.name === 'CastError') {
         return res.status(ERROR_REQUEST).send({ message: 'Переданы некорректные данные карточки' })
       }
-      return res.status(ERROR_SERVER).send({ message: 'Произошла ошибка на сервере' })
+        return res.status(ERROR_SERVER).send({ message: 'Произошла ошибка на сервере' })
     })
 }
 
@@ -99,6 +102,6 @@ module.exports = {
   getCards,
   createNewCard,
   deleteCardById,
-  putLikeCard,
+  LikeCard,
   deleteLikeCard
 }

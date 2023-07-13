@@ -65,7 +65,7 @@ function patchUser(req, res) {
     {
       new: true, // обработчик then получит на вход обновлённую запись
       runValidators: true, // данные будут валидированы перед изменением
-      // upsert: false // если пользователь не найден, он не будет создан
+      // upsert: true // если пользователь не найден, он будет создан
     }
   )
     .then((user) => res.status(SUCCESS__REQUEST).send(user))
@@ -94,8 +94,9 @@ function patchUserAvatar(req, res) {
       // upsert: false // если пользователь не найден, он не будет создан
     }
   )
-    .then((user) => res.status(success_request).send(user))
+    .then((user) => res.status(SUCCESS__REQUEST).send(user))
     .catch((err) => {
+      console.log(err)
       if (err.name === 'ValidationError') {
         return res.status(ERROR_REQUEST).send({ message: 'Переданы некорректные данные' })
       }
