@@ -17,7 +17,7 @@ mongoose.connect('mongodb://127.0.0.1:27017/mestodb', {
 // временное решение авторизации
 app.use((req, _res, next) => {
   req.user = {
-    _id: '64abf03ffd433ccf1d0afe5a' //_id созданного пользователя Кусто
+    _id: '64abf03ffd433ccf1d0afe5a', // _id созданного пользователя Кусто
   };
 
   next();
@@ -35,9 +35,10 @@ app.use('/users', usersRouter);
 app.use('/cards', cardsRouter);
 
 app.use('/*', (_req, res) => {
-  res.status(ERROR_NOT_FOUND).send({ message: 'Страница не найдена'});
-})
+  res.status(ERROR_NOT_FOUND).send({ message: 'Страница не найдена' });
+});
 
 app.listen(PORT, () => {
+  // eslint-disable-next-line no-console
   console.log(`Application is running on port ${PORT}`);
 });

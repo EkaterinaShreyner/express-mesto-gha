@@ -5,7 +5,7 @@ const {
   createNewCard,
   deleteCardById,
   LikeCard,
-  deleteLikeCard
+  deleteLikeCard,
 } = require('../controllers/cards');
 
 router.get('/', getCards);
