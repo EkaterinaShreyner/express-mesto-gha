@@ -1,14 +1,37 @@
 /* eslint-disable consistent-return */
 /* eslint-disable no-console */
-// импортируем модель user
-const User = require('../models/users');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken'); // для создания токена
+const User = require('../models/users'); // импортируем модель user
 
 const {
   SUCCESS_CREATE__REQUEST,
+  ERROR_UNAUTHORIZED,
   ERROR_REQUEST,
   ERROR_NOT_FOUND,
   ERROR_SERVER,
 } = require('../utils/constants');
+
+// создание контроллера аутентификации
+function login(req, res, next) {
+  const { email, password } = req.body;
+
+  return User.findUserByCredentials(email, password)
+    .then((user) => {
+      // создание токена
+      const token = jwt.sign(
+        { _id: user._id }, // зашифрованный в строку объект пользователя
+        'some-secret-key',
+        { expiresIn: '7d' }, // действие токена 7 дней
+      );
+      console.log(token);
+      res.send({ token });
+    })
+    .catch((err) => {
+      res.status(ERROR_UNAUTHORIZED).send({ message: err.message });
+    })
+    .catch(next);
+}
 
 // запрос всех пользователей
 function getUsers(_req, res) {
@@ -23,7 +46,6 @@ function getUserById(req, res) {
   User.findById(userId)
     .then((user) => {
       console.log(userId);
-      console.log(user);
       if (!user) {
         return res.status(ERROR_NOT_FOUND).send({ message: 'Пользователь с такими id не найден' });
       }
@@ -38,10 +60,43 @@ function getUserById(req, res) {
     });
 }
 
+// запрос текущего пользователя
+function getCurrentUser(req, res, next) {
+  const userId = req.user._id;
+  console.log(userId);
+  User.findById(userId)
+    .then((user) => {
+      console.log(userId);
+      if (!user) {
+        return res.status(ERROR_NOT_FOUND).send({ message: 'Пользователь c таким id не найден' });
+      }
+      return res.send(user);
+    })
+    .catch((err) => {
+      console.log(err.name);
+      return res.status(ERROR_REQUEST).send({ message: 'Переданы некорректные данные id пользователя' });
+    })
+    .catch(next);
+}
+
 // создание нового пользователя
-function postNewUser(req, res) {
-  const { name, about, avatar } = req.body;
-  User.create({ name, about, avatar })
+function createUser(req, res) {
+  const {
+    name,
+    about,
+    avatar,
+    email,
+    password,
+  } = req.body;
+  bcrypt.hash(password, 10) // хеширование пароля
+    .then((hash) => User.create({
+      name,
+      about,
+      avatar,
+      email,
+      password: hash,
+    }))
+  // User.create({ name, about, avatar, email, password })
     .then((user) => res.status(SUCCESS_CREATE__REQUEST).send(user))
     .catch((err) => {
       console.log(err.name);
@@ -105,9 +160,11 @@ function patchUserAvatar(req, res) {
 }
 
 module.exports = {
+  login,
   getUsers,
   getUserById,
-  postNewUser,
+  getCurrentUser,
+  createUser,
   patchUser,
   patchUserAvatar,
 };
