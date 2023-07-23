@@ -7,10 +7,10 @@ function auth(req, res, next) {
 
   // убеждаемся, что token есть или начинается с Bearer
   if (!authorization || !authorization.startsWith('Bearer ')) {
-    return res.status(401).send({ message: 'Передан неверный JWT' });
+    return res.status(401).send({ message: 'В заголовке нет токена' });
   }
   // извлеваем токен, в переменную token запишется только JWT
-  const token = authorization.replace('Bearer', '');
+  const token = authorization.replace('Bearer ', '');
   // верифицируем токен, вернёт пейлоуд токена
   let payload;
 
@@ -19,6 +19,7 @@ function auth(req, res, next) {
     payload = jwt.verify(token, 'some-secret-key');
   } catch (err) {
     // отправим ошибку, если не получилось
+    console.log(err);
     return res.status(401).send({ message: 'Неверный токен' });
   }
   // записываем пейлоуд в объект запроса

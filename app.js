@@ -18,13 +18,13 @@ mongoose.connect('mongodb://127.0.0.1:27017/mestodb', {
 });
 
 // временное решение авторизации
-// app.use((req, _res, next) => {
-//   req.user = {
-//     _id: '64abf03ffd433ccf1d0afe5a', // _id созданного пользователя Кусто
-//   };
+app.use((req, _res, next) => {
+  req.user = {
+    _id: '64abf03ffd433ccf1d0afe5a', // _id созданного пользователя Кусто
+  };
 
-//   next();
-// });
+  next();
+});
 
 // объединение пакетов данных
 app.use(express.json());

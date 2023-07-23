@@ -28,6 +28,7 @@ const userSchema = new mongoose.Schema({
   password: {
     type: String,
     required: true,
+    select: false, //  по умолчанию хеш пароля пользователя не будет возвращаться из базы
   },
 });
 
@@ -35,13 +36,17 @@ const userSchema = new mongoose.Schema({
 // возвращает объект пользователя или ошибку
 userSchema.statics.findUserByCredentials = function (email, password) {
   return this.findOne({ email }) // найти пользователя по почте
+    .select('+password')
     .then((user) => {
-      if (!user) {
+      if (!user) { // если такого email нет, то ошибка
         return Promise.reject(new Error('Неправильные почта'));
       }
-      return bcrypt.compare(password, user.password) // если user нашелся сравниваем хеши
+      // если user нашелся сравниваем хеши
+      return bcrypt.compare(password, user.password)
         .then((matched) => {
           if (!matched) {
+            console.log(password);
+            console.log(user.password);
             return Promise.reject(new Error('Неправильные пароль'));
           }
           return user;

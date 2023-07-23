@@ -6,38 +6,20 @@ const User = require('../models/users'); // импортируем модель 
 
 const {
   SUCCESS_CREATE__REQUEST,
-  ERROR_UNAUTHORIZED,
+  // ERROR_UNAUTHORIZED,
   ERROR_REQUEST,
   ERROR_NOT_FOUND,
   ERROR_SERVER,
 } = require('../utils/constants');
 
-// создание контроллера аутентификации
-function login(req, res, next) {
-  const { email, password } = req.body;
-
-  return User.findUserByCredentials(email, password)
-    .then((user) => {
-      // создание токена
-      const token = jwt.sign(
-        { _id: user._id }, // зашифрованный в строку объект пользователя
-        'some-secret-key',
-        { expiresIn: '7d' }, // действие токена 7 дней
-      );
-      console.log(token);
-      res.send({ token });
-    })
-    .catch((err) => {
-      res.status(ERROR_UNAUTHORIZED).send({ message: err.message });
-    })
-    .catch(next);
-}
-
 // запрос всех пользователей
 function getUsers(_req, res) {
   User.find({})
     .then((user) => res.send(user))
-    .catch(() => res.status(ERROR_SERVER).send({ message: 'Произошла ошибка на сервере' }));
+    .catch((err) => {
+      console.log(err.name);
+      res.status(ERROR_SERVER).send({ message: 'Произошла ошибка на сервере' });
+    });
 }
 
 // запрос пользователя по id
@@ -97,7 +79,15 @@ function createUser(req, res) {
       password: hash,
     }))
   // User.create({ name, about, avatar, email, password })
-    .then((user) => res.status(SUCCESS_CREATE__REQUEST).send(user))
+    .then((user) => res.status(SUCCESS_CREATE__REQUEST).send(
+      {
+        name: user.name,
+        about: user.about,
+        avatar: user.avatar,
+        email: user.email,
+        _id: user._id,
+      },
+    ))
     .catch((err) => {
       console.log(err.name);
       if (err.name === 'ValidationError') {
@@ -105,6 +95,34 @@ function createUser(req, res) {
       }
       return res.status(ERROR_SERVER).send({ message: 'Произошла ошибка на сервере' });
     });
+}
+
+// создание контроллера аутентификации
+function login(req, res, next) {
+  const { email, password } = req.body;
+
+  return User.findUserByCredentials(email, password)
+    .then((user) => {
+      // создание токена
+      const token = jwt.sign(
+        { _id: user._id }, // зашифрованный в строку объект пользователя
+        'some-secret-key',
+        { expiresIn: '7d' }, // действие токена 7 дней
+      );
+      console.log(token);
+      console.log(user);
+      // res.send({ token });
+      // хранение токена в куки на 7 дней
+      res.cookie('token', token, {
+        maxAge: 3600000 * 24 * 7,
+        httpOnly: true,
+      });
+      res.send({ token });
+    })
+    // .catch((err) => {
+    //   res.status(ERROR_UNAUTHORIZED).send({ message: err.message });
+    // })
+    .catch(next);
 }
 
 // замена данных пользователя
