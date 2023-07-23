@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+const { errors } = require('celebrate');
 
 const { login, createUser } = require('./controllers/users');
 const auth = require('./middlewares/auth');
@@ -47,6 +48,9 @@ app.use('/cards', cardsRouter);
 app.use('/*', (_req, res) => {
   res.status(ERROR_NOT_FOUND).send({ message: 'Страница не найдена' });
 });
+
+// обработчики ошибок celebrate
+app.use(errors());
 
 app.listen(PORT, () => {
   // eslint-disable-next-line no-console

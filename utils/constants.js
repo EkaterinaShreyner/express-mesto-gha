@@ -11,6 +11,8 @@ const ERROR_NOT_FOUND = 404;
 // ошибка по умолчанию
 const ERROR_SERVER = 500;
 
+const regex = /https?:\/\/\(www\.)?\[a-z0-9\-]+\.\[a-z0-9]\/\[a-z0-9]+\/i;
+
 module.exports = {
   SUCCESS__REQUEST,
   SUCCESS_CREATE__REQUEST,
@@ -18,4 +20,5 @@ module.exports = {
   ERROR_UNAUTHORIZED,
   ERROR_NOT_FOUND,
   ERROR_SERVER,
+  regex,
 };
