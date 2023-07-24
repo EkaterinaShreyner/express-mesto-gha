@@ -3,12 +3,13 @@
 const Card = require('../models/card');
 const BadRequestError = require('../errors/BadRequestError');
 const NotFoundError = require('../errors/NotFoundError');
+const ForbiddenError = require('../errors/ForbiddenError');
 
 const {
   SUCCESS_CREATE__REQUEST,
-  ERROR_REQUEST,
-  ERROR_NOT_FOUND,
-  ERROR_SERVER,
+  // ERROR_REQUEST,
+  // ERROR_NOT_FOUND,
+  // ERROR_SERVER,
 } = require('../utils/constants');
 
 // запрос всех карточек
@@ -39,12 +40,16 @@ function createNewCard(req, res, next) {
 // удаление карточки
 function deleteCardById(req, res, next) {
   const { cardId } = req.params;
+  const userId = req.user._id;
   Card.findByIdAndRemove(cardId)
     .then((card) => {
       if (!card) {
         console.log(card);
         // return res.status(ERROR_NOT_FOUND).send({ message: 'Карточка с таким id не найдена' });
         throw new NotFoundError('Карточка с таким id не найдена');
+      }
+      if (card.owner !== userId) {
+        throw new ForbiddenError('Попытка удалить чужую карточку невозможна');
       }
       return res.send(card);
     })
@@ -98,7 +103,7 @@ function deleteLikeCard(req, res, next) {
       if (!card) {
         console.log(card);
         // return res.status(ERROR_NOT_FOUND).send({ message: 'Карточка с таким id не найдена' });
-        throw new NotFoundError('арточка с таким id не найдена');
+        throw new NotFoundError('карточка с таким id не найдена');
       }
       return res.send(card);
     })
