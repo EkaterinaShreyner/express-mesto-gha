@@ -5,10 +5,7 @@ const jwt = require('jsonwebtoken'); // для создания токена
 
 const {
   SUCCESS_CREATE__REQUEST,
-  // ERROR_UNAUTHORIZED,
   ERROR_REQUEST,
-  // ERROR_NOT_FOUND,
-  // ERROR_SERVER,
 } = require('../utils/constants');
 
 const User = require('../models/users'); // импортируем модель user
@@ -33,7 +30,6 @@ function createUser(req, res, next) {
       email,
       password: hash,
     }))
-  // User.create({ name, about, avatar, email, password })
     .then((user) => res.status(SUCCESS_CREATE__REQUEST).send(
       {
         name: user.name,
@@ -46,13 +42,11 @@ function createUser(req, res, next) {
     .catch((err) => {
       console.log(err);
       if (err.name === 'ValidationError') {
-        // return res.status(ERROR_REQUEST).send({ message: 'Переданы некорректные данные' });
         return next(new BadRequestError('Переданы некорректные данные'));
       }
       if (err.code === 11000) {
         return next(new ConflictError('Пользователь с таким email зарегистрирован'));
       }
-      // return res.status(ERROR_SERVER).send({ message: 'Произошла ошибка на сервере' });
       return next(err);
     });
 }
@@ -61,10 +55,6 @@ function createUser(req, res, next) {
 function getUsers(_req, res, next) {
   User.find({})
     .then((users) => res.send(users))
-    // .catch((err) => {
-    //   console.log(err.name);
-    //   res.status(ERROR_SERVER).send({ message: 'Произошла ошибка на сервере' });
-    // });
     .catch((err) => next(err));
 }
 
@@ -75,7 +65,6 @@ function getUserById(req, res, next) {
     .then((user) => {
       console.log(userId);
       if (!user) {
-        // return res.status(ERROR_NOT_FOUND).send({ message: 'Польз-ль с такими id не найден' });
         throw new NotFoundError('Пользователь с таким id не найден');
       }
       res.send(user);
@@ -83,10 +72,8 @@ function getUserById(req, res, next) {
     .catch((err) => {
       console.log(err.name);
       if (err.name === 'CastError') {
-        // return res.status(ERROR_REQUEST).send({ message: 'Переданы некорре данные id поль-ля' });
         next(new BadRequestError('Переданы некорректные данные id пользователя'));
       }
-      // return res.status(ERROR_SERVER).send({ message: 'Произошла ошибка на сервере' });
       next(err);
     });
 }
@@ -98,16 +85,10 @@ function getCurrentUser(req, res, next) {
   User.findById(userId)
     .then((user) => {
       if (!user) {
-        // return res.status(ERROR_NOT_FOUND).send({ message: 'Пользов c таким id не найден' });
         throw new NotFoundError('Пользователь c таким id не найден');
       }
       return res.send(user);
     })
-    // .catch((err) => {
-    //   console.log(err.name);
-    //   return res.status(ERROR_REQUEST).send({ message: 'Переданы некорре данные id польз' });
-    //   // next(new BadRequestError('Переданы некорректные данные id пользователя'));
-    // });
     .catch((err) => next(err));
 }
 
@@ -133,9 +114,6 @@ function login(req, res, next) {
       });
       res.send({ token });
     })
-    // .catch((err) => {
-    //   res.status(ERROR_UNAUTHORIZED).send({ message: err.message });
-    // })
     .catch(next);
 }
 
@@ -159,10 +137,8 @@ function patchUser(req, res, next) {
     // .then((user) => console.log({ name }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        // return res.status(ERROR_REQUEST).send({ message: 'Переданы некорректные данные' });
         return next(new BadRequestError('Переданы некорректные данные'));
       }
-      // return res.status(ERROR_SERVER).send({ message: 'Произошла ошибка на сервере' });
       return next(err);
     });
 }
@@ -187,10 +163,8 @@ function patchUserAvatar(req, res, next) {
     .catch((err) => {
       console.log(err);
       if (err.name === 'ValidationError') {
-        // return res.status(ERROR_REQUEST).send({ message: 'Переданы некорректные данные' });
         return next(new BadRequestError('Переданы некорректные данные'));
       }
-      // return res.status(ERROR_SERVER).send({ message: 'Произошла ошибка на сервере' });
       return next(err);
     });
 }

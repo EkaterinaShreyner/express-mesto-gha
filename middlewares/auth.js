@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 const jwt = require('jsonwebtoken'); // для создания токена
 
 // eslint-disable-next-line consistent-return

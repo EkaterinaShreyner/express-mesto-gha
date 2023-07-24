@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 const mongoose = require('mongoose');
 const validator = require('validator');
 const bcrypt = require('bcryptjs');
@@ -41,7 +42,6 @@ userSchema.statics.findUserByCredentials = function (email, password) {
     .select('+password')
     .then((user) => {
       if (!user) { // если такого email нет, то ошибка
-        // return Promise.reject(new Error('Неправильные почта'));
         return Promise.reject(new UnauthorizedError('Неправильные email или пароль'));
       }
       // если user нашелся сравниваем хеши
@@ -50,7 +50,6 @@ userSchema.statics.findUserByCredentials = function (email, password) {
           if (!matched) {
             console.log(password);
             console.log(user.password);
-            // return Promise.reject(new Error('Неправильные пароль'));
             return Promise.reject(new UnauthorizedError('Неправильные email или пароль'));
           }
           return user;
