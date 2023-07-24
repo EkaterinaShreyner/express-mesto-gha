@@ -2,43 +2,51 @@
 /* eslint-disable no-console */
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken'); // для создания токена
-const User = require('../models/users'); // импортируем модель user
 
 const {
   SUCCESS_CREATE__REQUEST,
   // ERROR_UNAUTHORIZED,
   ERROR_REQUEST,
-  ERROR_NOT_FOUND,
+  // ERROR_NOT_FOUND,
   ERROR_SERVER,
 } = require('../utils/constants');
 
+const User = require('../models/users'); // импортируем модель user
+const BadRequestError = require('../errors/BadRequestError');
+const NotFoundError = require('../errors/NotFoundError');
+const ConflictError = require('../errors/ConflictError');
+
 // запрос всех пользователей
-function getUsers(_req, res) {
+function getUsers(_req, res, next) {
   User.find({})
-    .then((user) => res.send(user))
-    .catch((err) => {
-      console.log(err.name);
-      res.status(ERROR_SERVER).send({ message: 'Произошла ошибка на сервере' });
-    });
+    .then((users) => res.send(users))
+    // .catch((err) => {
+    //   console.log(err.name);
+    //   res.status(ERROR_SERVER).send({ message: 'Произошла ошибка на сервере' });
+    // });
+    .catch((err) => next(err));
 }
 
 // запрос пользователя по id
-function getUserById(req, res) {
+function getUserById(req, res, next) {
   const { userId } = req.params;
   User.findById(userId)
     .then((user) => {
       console.log(userId);
       if (!user) {
-        return res.status(ERROR_NOT_FOUND).send({ message: 'Пользователь с такими id не найден' });
+        // return res.status(ERROR_NOT_FOUND).send({ message: 'Польз-ль с такими id не найден' });
+        throw new NotFoundError('Пользователь с таким id не найден');
       }
       res.send(user);
     })
     .catch((err) => {
       console.log(err.name);
       if (err.name === 'CastError') {
-        return res.status(ERROR_REQUEST).send({ message: 'Переданы некорректные данные id пользователя' });
+        // return res.status(ERROR_REQUEST).send({ message: 'Переданы некорре данные id поль-ля' });
+        next(new BadRequestError('Переданы некорректные данные id пользователя'));
       }
-      return res.status(ERROR_SERVER).send({ message: 'Произошла ошибка на сервере' });
+      // return res.status(ERROR_SERVER).send({ message: 'Произошла ошибка на сервере' });
+      next(err);
     });
 }
 
@@ -48,21 +56,22 @@ function getCurrentUser(req, res, next) {
   console.log(userId);
   User.findById(userId)
     .then((user) => {
-      console.log(userId);
       if (!user) {
-        return res.status(ERROR_NOT_FOUND).send({ message: 'Пользователь c таким id не найден' });
+        // return res.status(ERROR_NOT_FOUND).send({ message: 'Пользов c таким id не найден' });
+        throw new NotFoundError('Пользователь c таким id не найден');
       }
       return res.send(user);
     })
-    .catch((err) => {
-      console.log(err.name);
-      return res.status(ERROR_REQUEST).send({ message: 'Переданы некорректные данные id пользователя' });
-    })
-    .catch(next);
+    // .catch((err) => {
+    //   console.log(err.name);
+    //   return res.status(ERROR_REQUEST).send({ message: 'Переданы некорре данные id польз' });
+    //   // next(new BadRequestError('Переданы некорректные данные id пользователя'));
+    // });
+    .catch((err) => next(err));
 }
 
 // создание нового пользователя
-function createUser(req, res) {
+function createUser(req, res, next) {
   const {
     name,
     about,
@@ -89,11 +98,16 @@ function createUser(req, res) {
       },
     ))
     .catch((err) => {
-      console.log(err.name);
+      console.log(err);
       if (err.name === 'ValidationError') {
-        return res.status(ERROR_REQUEST).send({ message: 'Переданы некорректные данные' });
+        // return res.status(ERROR_REQUEST).send({ message: 'Переданы некорректные данные' });
+        return next(new BadRequestError('Переданы некорректные данные'));
       }
-      return res.status(ERROR_SERVER).send({ message: 'Произошла ошибка на сервере' });
+      if (err.code === 11000) {
+        return next(new ConflictError('Пользователь с таким email зарегистрирован'));
+      }
+      // return res.status(ERROR_SERVER).send({ message: 'Произошла ошибка на сервере' });
+      return next(err);
     });
 }
 
@@ -126,7 +140,7 @@ function login(req, res, next) {
 }
 
 // замена данных пользователя
-function patchUser(req, res) {
+function patchUser(req, res, next) {
   const { name, about } = req.body;
   const userId = req.user._id;
   if (!name || !about) {
@@ -145,14 +159,16 @@ function patchUser(req, res) {
     // .then((user) => console.log({ name }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return res.status(ERROR_REQUEST).send({ message: 'Переданы некорректные данные' });
+        // return res.status(ERROR_REQUEST).send({ message: 'Переданы некорректные данные' });
+        return next(new BadRequestError('Переданы некорректные данные'));
       }
-      return res.status(ERROR_SERVER).send({ message: 'Произошла ошибка на сервере' });
+      // return res.status(ERROR_SERVER).send({ message: 'Произошла ошибка на сервере' });
+      return next(err);
     });
 }
 
 // замена аватара пользователя
-function patchUserAvatar(req, res) {
+function patchUserAvatar(req, res, next) {
   const { avatar } = req.body;
   const userId = req.user._id;
   if (!avatar) {
@@ -171,9 +187,11 @@ function patchUserAvatar(req, res) {
     .catch((err) => {
       console.log(err);
       if (err.name === 'ValidationError') {
-        return res.status(ERROR_REQUEST).send({ message: 'Переданы некорректные данные' });
+        // return res.status(ERROR_REQUEST).send({ message: 'Переданы некорректные данные' });
+        return next(new BadRequestError('Переданы некорректные данные'));
       }
-      return res.status(ERROR_SERVER).send({ message: 'Произошла ошибка на сервере' });
+      // return res.status(ERROR_SERVER).send({ message: 'Произошла ошибка на сервере' });
+      return next(err);
     });
 }
 

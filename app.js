@@ -7,6 +7,7 @@ const { login, createUser } = require('./controllers/users');
 const auth = require('./middlewares/auth');
 const usersRouter = require('./routes/users');
 const cardsRouter = require('./routes/cards');
+const errorsHandler = require('./middlewares/errorsHandler');
 
 const { ERROR_NOT_FOUND } = require('./utils/constants');
 
@@ -51,6 +52,9 @@ app.use('/*', (_req, res) => {
 
 // обработчики ошибок celebrate
 app.use(errors());
+
+// централизованный обработчик ошибок
+app.use(errorsHandler);
 
 app.listen(PORT, () => {
   // eslint-disable-next-line no-console
