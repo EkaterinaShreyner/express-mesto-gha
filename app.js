@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const { errors } = require('celebrate');
+const { celebrate, Joi } = require('celebrate');
 
 const { login, createUser } = require('./controllers/users');
 const auth = require('./middlewares/auth');
@@ -10,6 +11,7 @@ const cardsRouter = require('./routes/cards');
 const errorsHandler = require('./middlewares/errorsHandler');
 
 const { ERROR_NOT_FOUND } = require('./utils/constants');
+const { regex } = require('./utils/constants');
 
 const { PORT = 3000 } = process.env;
 const app = express();
@@ -19,13 +21,13 @@ mongoose.connect('mongodb://127.0.0.1:27017/mestodb', {
 });
 
 // временное решение авторизации
-app.use((req, _res, next) => {
-  req.user = {
-    _id: '64abf03ffd433ccf1d0afe5a', // _id созданного пользователя Кусто
-  };
+// app.use((req, _res, next) => {
+//   req.user = {
+//     _id: '64abf03ffd433ccf1d0afe5a', // _id созданного пользователя Кусто
+//   };
 
-  next();
-});
+//   next();
+// });
 
 // объединение пакетов данных
 app.use(express.json());
@@ -33,9 +35,22 @@ app.use(bodyParser.urlencoded({ extended: true })); // для приёма ве�
 
 // роуты не требующие авторизации
 // роут регистрации
-app.post('/signup', createUser);
+app.post('/signup', celebrate({
+  body: Joi.object().keys({
+    name: Joi.string().min(2).max(30),
+    about: Joi.string().min(2).max(30),
+    email: Joi.string().email().required(),
+    password: Joi.string().required(),
+    avatar: Joi.string().regex(regex),
+  }),
+}), createUser);
 // роут на авторизацию
-app.post('/signin', login);
+app.post('/signin', celebrate({
+  body: Joi.object().keys({
+    email: Joi.string().required().email(),
+    password: Joi.string().required(),
+  }),
+}), login);
 
 // авторизация, защита роутов авторизацией
 app.use(auth);
