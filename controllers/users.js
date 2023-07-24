@@ -8,13 +8,54 @@ const {
   // ERROR_UNAUTHORIZED,
   ERROR_REQUEST,
   // ERROR_NOT_FOUND,
-  ERROR_SERVER,
+  // ERROR_SERVER,
 } = require('../utils/constants');
 
 const User = require('../models/users'); // импортируем модель user
 const BadRequestError = require('../errors/BadRequestError');
 const NotFoundError = require('../errors/NotFoundError');
 const ConflictError = require('../errors/ConflictError');
+
+// создание нового пользователя
+function createUser(req, res, next) {
+  const {
+    name,
+    about,
+    avatar,
+    email,
+    password,
+  } = req.body;
+  bcrypt.hash(password, 10) // хеширование пароля
+    .then((hash) => User.create({
+      name,
+      about,
+      avatar,
+      email,
+      password: hash,
+    }))
+  // User.create({ name, about, avatar, email, password })
+    .then((user) => res.status(SUCCESS_CREATE__REQUEST).send(
+      {
+        name: user.name,
+        about: user.about,
+        avatar: user.avatar,
+        email: user.email,
+        _id: user._id,
+      },
+    ))
+    .catch((err) => {
+      console.log(err);
+      if (err.name === 'ValidationError') {
+        // return res.status(ERROR_REQUEST).send({ message: 'Переданы некорректные данные' });
+        return next(new BadRequestError('Переданы некорректные данные'));
+      }
+      if (err.code === 11000) {
+        return next(new ConflictError('Пользователь с таким email зарегистрирован'));
+      }
+      // return res.status(ERROR_SERVER).send({ message: 'Произошла ошибка на сервере' });
+      return next(err);
+    });
+}
 
 // запрос всех пользователей
 function getUsers(_req, res, next) {
@@ -68,47 +109,6 @@ function getCurrentUser(req, res, next) {
     //   // next(new BadRequestError('Переданы некорректные данные id пользователя'));
     // });
     .catch((err) => next(err));
-}
-
-// создание нового пользователя
-function createUser(req, res, next) {
-  const {
-    name,
-    about,
-    avatar,
-    email,
-    password,
-  } = req.body;
-  bcrypt.hash(password, 10) // хеширование пароля
-    .then((hash) => User.create({
-      name,
-      about,
-      avatar,
-      email,
-      password: hash,
-    }))
-  // User.create({ name, about, avatar, email, password })
-    .then((user) => res.status(SUCCESS_CREATE__REQUEST).send(
-      {
-        name: user.name,
-        about: user.about,
-        avatar: user.avatar,
-        email: user.email,
-        _id: user._id,
-      },
-    ))
-    .catch((err) => {
-      console.log(err);
-      if (err.name === 'ValidationError') {
-        // return res.status(ERROR_REQUEST).send({ message: 'Переданы некорректные данные' });
-        return next(new BadRequestError('Переданы некорректные данные'));
-      }
-      if (err.code === 11000) {
-        return next(new ConflictError('Пользователь с таким email зарегистрирован'));
-      }
-      // return res.status(ERROR_SERVER).send({ message: 'Произошла ошибка на сервере' });
-      return next(err);
-    });
 }
 
 // создание контроллера аутентификации
