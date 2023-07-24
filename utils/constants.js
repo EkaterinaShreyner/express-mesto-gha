@@ -12,7 +12,8 @@ const ERROR_NOT_FOUND = 404;
 const ERROR_SERVER = 500;
 
 // const regex = /https?:\/\/\(www\.)?\[a-z0-9\-]+\.\[a-z0-9]\/\[a-z0-9]+\/i;
-const regex = /https?:\/\/(www\.)?[a-z0-9-]+\.[a-z0-9-._~:/?#[\]@!$&'()*+,;=]+#?/i;
+// const regex = /https?:\/\/(www\.)?[a-z0-9-]+\.[a-z0-9-._~:/?#[\]@!$&'()*+,;=]+#?/i;
+const regex = /https?:\/\/(www\.)?[a-z0-9-]+\.[a-z0-9-.,;_:/?!%@$&#[\]()+-=]+/i;
 
 module.exports = {
   SUCCESS__REQUEST,
