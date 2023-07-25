@@ -39,17 +39,15 @@ function deleteCardById(req, res, next) {
     .then((card) => {
       if (!card) {
         console.log(cardId);
-        console.log(card);
         throw new NotFoundError('Карточка с таким id не найдена');
       }
       if (card.owner.toString() !== userId) {
         console.log(cardId);
+        console.log(card.owner);
         throw new ForbiddenError('Попытка удалить чужую карточку невозможна');
       }
-      // Card.findByIdAndRemove(cardId)
-      //   .then((card) => res.send(card))
-      console.log(cardId);
-      return res.send(card);
+      return Card.findByIdAndRemove(cardId)
+        .then((item) => res.send(item));
     })
     .catch((err) => {
       console.log(err.name);
