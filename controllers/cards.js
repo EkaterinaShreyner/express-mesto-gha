@@ -4,10 +4,7 @@ const Card = require('../models/card');
 const BadRequestError = require('../errors/BadRequestError');
 const NotFoundError = require('../errors/NotFoundError');
 const ForbiddenError = require('../errors/ForbiddenError');
-
-const {
-  SUCCESS_CREATE__REQUEST,
-} = require('../utils/constants');
+const { SUCCESS_CREATE__REQUEST } = require('../utils/constants');
 
 // запрос всех карточек
 function getCards(_req, res, next) {
@@ -30,7 +27,7 @@ function createNewCard(req, res, next) {
     });
 }
 
-// delete
+// удаление карточки
 function deleteCardById(req, res, next) {
   const { cardId } = req.params;
   const userId = req.user._id;
@@ -57,30 +54,6 @@ function deleteCardById(req, res, next) {
       return next(err);
     });
 }
-
-// удаление карточки
-// function deleteCardById(req, res, next) {
-//   const { cardId } = req.params;
-//   const userId = req.user._id;
-//   Card.findByIdAndRemove(cardId)
-//     .then((card) => {
-//       if (!card) {
-//         console.log(card);
-//         throw new NotFoundError('Карточка с таким id не найдена');
-//       }
-//       if (card.owner !== userId) {
-//         throw new ForbiddenError('Попытка удалить чужую карточку невозможна');
-//       }
-//       return res.send(card);
-//     })
-//     .catch((err) => {
-//       console.log(err.name);
-//       if (err.name === 'CastError') {
-//         return next(new BadRequestError('Переданы некорректные данные id карточки'));
-//       }
-//       return next(err);
-//     });
-// }
 
 // установка лайка карточки
 function LikeCard(req, res, next) {

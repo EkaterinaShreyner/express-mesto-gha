@@ -10,7 +10,6 @@ const usersRouter = require('./routes/users');
 const cardsRouter = require('./routes/cards');
 const errorsHandler = require('./middlewares/errorsHandler');
 
-// const { ERROR_NOT_FOUND } = require('./utils/constants');
 const { regex } = require('./utils/constants');
 const NotFoundError = require('./errors/NotFoundError');
 
@@ -36,6 +35,7 @@ app.post('/signup', celebrate({
     avatar: Joi.string().regex(regex),
   }),
 }), createUser);
+
 // роут на авторизацию
 app.post('/signin', celebrate({
   body: Joi.object().keys({
@@ -54,7 +54,6 @@ app.use('/cards', cardsRouter);
 
 // роут для несуществующей страницы
 app.use('/*', (_req, _res, next) => {
-  // res.status(404).send({ message: 'Страница не найдена' });
   next(new NotFoundError('Страница не найдена'));
 });
 

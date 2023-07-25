@@ -7,7 +7,6 @@ const {
   SUCCESS_CREATE__REQUEST,
   ERROR_REQUEST,
 } = require('../utils/constants');
-
 const User = require('../models/users'); // импортируем модель user
 const BadRequestError = require('../errors/BadRequestError');
 const NotFoundError = require('../errors/NotFoundError');
