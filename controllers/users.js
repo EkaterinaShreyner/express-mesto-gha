@@ -1,12 +1,8 @@
-/* eslint-disable consistent-return */
 /* eslint-disable no-console */
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken'); // для создания токена
 
-const {
-  SUCCESS_CREATE__REQUEST,
-  ERROR_REQUEST,
-} = require('../utils/constants');
+const { SUCCESS_CREATE__REQUEST } = require('../utils/constants');
 const User = require('../models/users'); // импортируем модель user
 const BadRequestError = require('../errors/BadRequestError');
 const NotFoundError = require('../errors/NotFoundError');
@@ -71,9 +67,9 @@ function getUserById(req, res, next) {
     .catch((err) => {
       console.log(err.name);
       if (err.name === 'CastError') {
-        next(new BadRequestError('Переданы некорректные данные id пользователя'));
+        return next(new BadRequestError('Переданы некорректные данные id пользователя'));
       }
-      next(err);
+      return next(err);
     });
 }
 
@@ -120,9 +116,6 @@ function login(req, res, next) {
 function patchUser(req, res, next) {
   const { name, about } = req.body;
   const userId = req.user._id;
-  if (!name || !about) {
-    return res.status(ERROR_REQUEST).send({ message: 'Переданы некорректные данные пользователя' });
-  }
   User.findByIdAndUpdate(
     userId,
     { name, about },
@@ -146,9 +139,6 @@ function patchUser(req, res, next) {
 function patchUserAvatar(req, res, next) {
   const { avatar } = req.body;
   const userId = req.user._id;
-  if (!avatar) {
-    return res.status(ERROR_REQUEST).send({ message: 'Переданы некорректные данные аватара' });
-  }
   User.findByIdAndUpdate(
     userId,
     { avatar },
