@@ -20,7 +20,6 @@ function getCards(_req, res, next) {
 function createNewCard(req, res, next) {
   const { name, link } = req.body;
   const userId = req.user._id;
-
   Card.create({ name, link, owner: userId })
     .then((card) => res.status(SUCCESS_CREATE__REQUEST).send(card))
     .catch((err) => {
@@ -31,19 +30,25 @@ function createNewCard(req, res, next) {
     });
 }
 
-// удаление карточки
+// delete
 function deleteCardById(req, res, next) {
   const { cardId } = req.params;
   const userId = req.user._id;
-  Card.findByIdAndRemove(cardId)
+
+  Card.findById(cardId)
     .then((card) => {
       if (!card) {
+        console.log(cardId);
         console.log(card);
         throw new NotFoundError('Карточка с таким id не найдена');
       }
-      if (card.owner !== userId) {
+      if (card.owner.toString() !== userId) {
+        console.log(cardId);
         throw new ForbiddenError('Попытка удалить чужую карточку невозможна');
       }
+      // Card.findByIdAndRemove(cardId)
+      //   .then((card) => res.send(card))
+      console.log(cardId);
       return res.send(card);
     })
     .catch((err) => {
@@ -54,6 +59,30 @@ function deleteCardById(req, res, next) {
       return next(err);
     });
 }
+
+// удаление карточки
+// function deleteCardById(req, res, next) {
+//   const { cardId } = req.params;
+//   const userId = req.user._id;
+//   Card.findByIdAndRemove(cardId)
+//     .then((card) => {
+//       if (!card) {
+//         console.log(card);
+//         throw new NotFoundError('Карточка с таким id не найдена');
+//       }
+//       if (card.owner !== userId) {
+//         throw new ForbiddenError('Попытка удалить чужую карточку невозможна');
+//       }
+//       return res.send(card);
+//     })
+//     .catch((err) => {
+//       console.log(err.name);
+//       if (err.name === 'CastError') {
+//         return next(new BadRequestError('Переданы некорректные данные id карточки'));
+//       }
+//       return next(err);
+//     });
+// }
 
 // установка лайка карточки
 function LikeCard(req, res, next) {
